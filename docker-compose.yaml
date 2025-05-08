@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  client:
+    build:
+      context: ./Client
+      dockerfile: Dockerfile
+    container_name: client
+    ports:
+      - "3000:3000"
+    networks:
+      - f_brain_network
+    depends_on:
+      - server
+
+  server:
+    build:
+      context: ./Server
+      dockerfile: Dockerfile
+    container_name: server
+    ports:
+      - "8000:8000"
+    networks:
+      - f_brain_network
+    environment:
+      - DATABASE_URL=sqlite:///data/db.sqlite3
+
+  monitoring:
+    build:
+      context: ./Monitoring
+      dockerfile: Dockerfile
+    container_name: monitoring
+    ports:
+      - "3001:3001"
+      - "9090:9090"
+    networks:
+      - f_brain_network
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - server
+
+  proxy:
+    build:
+      context: ./Proxy
+      dockerfile: Dockerfile
+    container_name: proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - f_brain_network
+    depends_on:
+      - client
+      - server
+
+networks:
+  f_brain_network:
+    driver: bridge
+
+volumes:
+  grafana_data: {}
+
