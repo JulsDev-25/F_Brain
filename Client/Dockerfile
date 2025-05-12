@@ -1,24 +1,13 @@
-# Utiliser la dernière version de Node.js(16 est actuellement LTS, mais tu peux utiliser la dernière version stable)
-FROM node:latest
+FROM node:18
 
-# Définir le répertoire de travail dans le conteneur
 WORKDIR /app
 
-# Copier les fichiers package.json et package-lock.json
-COPY package*.json /app/
+COPY package*.json vite.config.js ./
 
-# Installer les dépendances
-RUN npm install
+RUN yarn install
 
-# Copier le reste du code source
-COPY . /app/
+COPY . .
 
-# Construire l'application
-RUN npm run build
+EXPOSE 5173
 
-# Exposer le port 3000 pour l'application React
-EXPOSE 3000
-
-# Commande pour démarrer l'application
-CMD ["npm", "start"]
- 
+CMD ["yarn", "run", "dev", "--", "--host"]
